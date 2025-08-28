@@ -55,6 +55,27 @@ It also includes an **interactive dashboard** (powered by `ipywidgets` + `plotly
 
 ---
 
-## 📂 Dataset  
 
-The code expects a dataset named:  
+### Required Columns:
+- `FuelPrice`  
+- `DemandIndex`  
+- `TrafficIndex`  
+- `Distance_km`  
+- `Price`  
+- `PredictedPrice`  
+- `Cost`  
+- `Profit`  
+- `Zone`  
+- `TimeBlock`  
+- `Timestamp`  
+
+---
+
+## ▶️ How to Run  
+
+1. Clone this repository:  
+   ```bash
+   git clone https://github.com/your-username/fuel-price-optimization.git
+   cd fuel-price-optimization
+   pip install -r requirements.txt
+
