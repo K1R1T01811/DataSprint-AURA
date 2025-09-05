@@ -1039,7 +1039,7 @@
       - Demand Index: ${demandIndex}
       - Traffic Index: ${trafficIndex}`;
       
-      const apiKey = "AIzaSyAKAb6IYL76krjunH3JCPBfj7NkyWPRszU";
+      const apiKey = "YOUR_API_KEY_HERE";
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
 
       const payload = {
@@ -1073,6 +1073,7 @@
     document.getElementById('refresh-data').addEventListener('click', refreshTrafficData);
   </script>
 
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDs0o-Ui37v3m3XITfqibIk7oYIFY2AlBk&libraries=places,visualization&callback=initMap" async defer></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY_HERE&libraries=places,visualization&callback=initMap" async defer></script>
 </body>
+
 </html>
