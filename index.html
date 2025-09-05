@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA - Fuel Price Prediction Dashboard</title>
+  <style>
+    
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+    }
+    
+    body { 
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      color: #e0e0e0;
+      padding: 32px 20px;
+      min-height: 100vh;
+    }
+    
+    
+    .header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    
+    h1 { 
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffd700 0%, #ffed4a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    
+    .container { 
+      display: grid; 
+      grid-template-columns: minmax(300px, 1fr) minmax(400px, 2fr) minmax(300px, 1fr); 
+      gap: 24px; 
+      max-width: 1800px; 
+      margin: 0 auto; 
+      align-items: start;
+    }
+
+    
+    .card { 
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
+      padding: 32px;
+      border-radius: 24px;
+      border: 1px solid rgba(255, 215, 0, 0.1);
+      box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(255, 215, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+      height: fit-content;
+    }
+    
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.3), transparent);
+    }
+
+    
+    .control-panel {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .control-panel h2 {
+      color: #ffd700;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    
+    .map-panel {
+      min-height: 600px;
+    }
+    
+    .map-panel h2 {
+      color: #ffd700;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    
+    .traffic-panel {
+      background: rgba(255, 215, 0, 0.03);
+    }
+    
+    .traffic-panel h2 {
+      color: #ffd700;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    
+    .slider-container { 
+      margin-bottom: 28px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 215, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .slider-container:hover {
+      background: rgba(0, 0, 0, 0.3);
+      border-color: rgba(255, 215, 0, 0.2);
+      transform: translateY(-2px);
+    }
+    
+    label { 
+      font-weight: 600; 
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      color: #f3f4f6;
+      font-size: 0.95rem;
+    }
+    
+    .slider-value {
+      color: #ffd700;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    
+    input[type=range] { 
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+      appearance: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    input[type=range]::-webkit-slider-thumb {
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffd700, #ffed4a);
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+      transition: all 0.3s ease;
+    }
+    
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+    }
+    
+    input[type=range]::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffd700, #ffed4a);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+    }
+
+    
+    .prediction-display {
+      margin-top: 32px;
+      padding: 24px;
+      background: rgba(255, 215, 0, 0.05);
+      border-radius: 20px;
+      border: 2px solid rgba(255, 215, 0, 0.2);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .prediction-display::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 50%);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    
+    @keyframes shimmer {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.7; }
+    }
+    
+    .prediction-label {
+      color: #d1d5db;
+      font-size: 1rem;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    #predicted-price { 
+      font-weight: 800;
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #ffd700 0%, #ffed4a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+      z-index: 1;
+      letter-spacing: -0.02em;
+    }
+
+    /* --- Inputs --- */
+    .input-group { 
+      display: flex; 
+      gap: 12px; 
+      margin-bottom: 20px; 
+    }
+    
+    .input-group input { 
+      flex: 1; 
+      padding: 16px 20px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 215, 0, 0.2);
+      background: rgba(0, 0, 0, 0.3);
+      color: #f3f4f6;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+    
+    .input-group input:focus {
+      outline: none;
+      border-color: #ffd700;
+      background: rgba(0, 0, 0, 0.4);
+      box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+    }
+    
+    .input-group input::placeholder {
+      color: #9ca3af;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    
+    .premium-btn { 
+      flex: 1;
+      padding: 16px 24px;
+      border: none;
+      border-radius: 16px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .primary-btn {
+      background: linear-gradient(135deg, #ffd700 0%, #ffed4a 100%);
+      color: #000;
+    }
+    
+    .primary-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(255, 215, 0, 0.3);
+    }
+    
+    .secondary-btn {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffd700;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+    
+    .secondary-btn:hover {
+      background: rgba(255, 215, 0, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    .premium-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    
+    .heatmap-controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .toggle-btn {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 12px;
+      background: rgba(255, 215, 0, 0.1);
+      color: #ffd700;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+    
+    .toggle-btn.active {
+      background: linear-gradient(135deg, #ffd700 0%, #ffed4a 100%);
+      color: #000;
+    }
+    
+    .toggle-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    
+    #map { 
+      width: 100%; 
+      height: 400px; 
+      border-radius: 20px;
+      box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 215, 0, 0.1);
+      overflow: hidden;
+    }
+
+    
+    .heatmap-legend {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 215, 0, 0.1);
+    }
+    
+    .legend-title {
+      color: #ffd700;
+      font-weight: 600;
+      margin-bottom: 12px;
+      font-size: 1rem;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+    }
+    
+    .legend-color {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      margin-right: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .legend-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .traffic-stats {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 215, 0, 0.1);
+    }
+    
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.9rem;
+    }
+    
+    .stat-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+    
+    .stat-label {
+      color: #9ca3af;
+      font-weight: 500;
+    }
+    
+    .stat-value {
+      color: #ffd700;
+      font-weight: 600;
+    }
+
+    
+    .results-section {
+      margin-top: 24px;
+      padding: 24px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 215, 0, 0.1);
+    }
+    
+    .results-section.hidden {
+      display: none;
+    }
+    
+    .result-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .result-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+    
+    .result-label {
+      color: #9ca3af;
+      font-weight: 500;
+    }
+    
+    .result-value {
+      color: #ffd700;
+      font-weight: 600;
+    }
+
+    
+    #summary-container { 
+      margin-top: 24px;
+      background: rgba(255, 215, 0, 0.05);
+      padding: 24px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 215, 0, 0.2);
+      backdrop-filter: blur(10px);
+    }
+    
+    #summary-container.hidden {
+      display: none;
+    }
+    
+    #summary-container h3 { 
+      color: #ffd700;
+      margin-bottom: 16px;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+    
+    #summary-text {
+      line-height: 1.6;
+      color: #e5e7eb;
+      font-weight: 400;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    
+    @media(max-width: 1400px) {
+      .container { 
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .traffic-panel {
+        grid-column: 1 / -1;
+      }
+    }
+    
+    @media(max-width: 1024px) {
+      .container { 
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+      #map { 
+        height: 350px; 
+      }
+      h1 {
+        font-size: 2rem;
+      }
+      .card {
+        padding: 24px;
+      }
+    }
+    
+    @media(max-width: 768px) {
+      body {
+        padding: 20px 16px;
+      }
+      .input-group {
+        flex-direction: column;
+      }
+      .button-group {
+        flex-direction: column;
+      }
+      .heatmap-controls {
+        flex-direction: column;
+      }
+      h1 {
+        font-size: 1.8rem;
+      }
+      .card {
+        padding: 20px;
+      }
+      #predicted-price {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>AURA</h1>
+  </div>
+
+  <div class="container">
+    
+    <div class="card control-panel">
+      <h2>Control Panel</h2>
+      
+      <div class="slider-container">
+        <label>
+          <span>Fuel Price</span>
+          <span class="slider-value">₹<span id="fuel-value">100</span></span>
+        </label>
+        <input type="range" id="fuel-slider" min="80" max="110" value="100">
+      </div>
+      
+      <div class="slider-container">
+        <label>
+          <span>Demand Index</span>
+          <span class="slider-value"><span id="demand-value">50</span>%</span>
+        </label>
+        <input type="range" id="demand-slider" min="0" max="100" value="50">
+      </div>
+      
+      <div class="slider-container">
+        <label>
+          <span>Traffic Index</span>
+          <span class="slider-value"><span id="traffic-value">0.5</span></span>
+        </label>
+        <input type="range" id="traffic-slider" min="0" max="1" step="0.1" value="0.5">
+      </div>
+      
+      <div class="slider-container">
+        <label>
+          <span>Distance</span>
+          <span class="slider-value"><span id="distance-value">10</span> km</span>
+        </label>
+        <input type="range" id="distance-slider" min="1" max="20" value="10">
+      </div>
+
+      <div class="prediction-display">
+        <div class="prediction-label">Predicted Trip Fuel Cost</div>
+        <div id="predicted-price">₹0.00</div>
+      </div>
+    </div>
+
+    
+    <div class="card map-panel">
+      <h2>Route Planning</h2>
+      
+      <div class="input-group">
+        <input id="from-input" placeholder="Enter starting location">
+        <input id="to-input" placeholder="Enter destination">
+      </div>
+      
+      <div class="button-group">
+        <button id="calculate-btn" class="premium-btn primary-btn">Calculate Route</button>
+        <button id="gemini-btn" class="premium-btn secondary-btn">Generate Summary</button>
+      </div>
+      
+      <div id="map"></div>
+
+      <div id="result" class="results-section hidden">
+        <div class="result-item">
+          <span class="result-label">Distance</span>
+          <span class="result-value" id="distance-display">-</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Duration</span>
+          <span class="result-value" id="duration-display">-</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">Traffic Index</span>
+          <span class="result-value" id="traffic-display">-</span>
+        </div>
+      </div>
+
+      <div id="summary-container" class="hidden">
+        <h3>AI Route Summary</h3>
+        <p id="summary-text"></p>
+      </div>
+    </div>
+
+    
+    <div class="card traffic-panel">
+      <h2>Traffic Heatmap</h2>
+      
+      <div class="heatmap-controls">
+        <button id="toggle-heatmap" class="toggle-btn">Show Heatmap</button>
+        <button id="refresh-data" class="toggle-btn">Refresh Data</button>
+      </div>
+      
+      <div class="heatmap-legend">
+        <div class="legend-title">Traffic Intensity Legend</div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #00ff00;"></div>
+          <span>Low Traffic (0.0 - 0.25)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #ffff00;"></div>
+          <span>Moderate Traffic (0.25 - 0.5)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #ff6600;"></div>
+          <span>Heavy Traffic (0.5 - 0.75)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #ff0000;"></div>
+          <span>Extreme Traffic (0.75 - 1.0)</span>
+        </div>
+      </div>
+      
+      <div class="traffic-stats">
+        <div class="stat-item">
+          <span class="stat-label">Current Traffic Index</span>
+          <span class="stat-value" id="current-traffic-index">0.5</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Average City Traffic</span>
+          <span class="stat-value" id="avg-traffic">0.6</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Peak Hours</span>
+          <span class="stat-value">8-10 AM, 6-8 PM</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Active Heatmap Points</span>
+          <span class="stat-value" id="heatmap-points">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    let map, fromAutocomplete, toAutocomplete, directionsService, directionsRenderer;
+    let fromPlace, toPlace;
+    let heatmap, heatmapData = [];
+    let isHeatmapVisible = false;
+
+    
+    const trafficHotspots = [
+      
+      { location: { lat: 13.0827, lng: 80.2707 }, weight: 0.8 },
+      { location: { lat: 13.0878, lng: 80.2785 }, weight: 0.7 },
+      { location: { lat: 13.0569, lng: 80.2427 }, weight: 0.9 },
+      
+      
+      { location: { lat: 12.9716, lng: 77.5946 }, weight: 0.8 },
+      { location: { lat: 12.9698, lng: 77.5986 }, weight: 0.7 },
+      { location: { lat: 12.9352, lng: 77.6245 }, weight: 0.8 },
+      
+      
+      { location: { lat: 19.0760, lng: 72.8777 }, weight: 0.9 },
+      { location: { lat: 19.0896, lng: 72.8656 }, weight: 0.9 },
+      { location: { lat: 19.0330, lng: 72.8397 }, weight: 0.8 },
+      
+      
+      { location: { lat: 28.6139, lng: 77.2090 }, weight: 0.9 },
+      { location: { lat: 28.6304, lng: 77.2177 }, weight: 0.8 },
+      { location: { lat: 28.5355, lng: 77.3910 }, weight: 0.8 },
+      
+      
+      { location: { lat: 17.3850, lng: 78.4867 }, weight: 0.7 },
+      { location: { lat: 17.4065, lng: 78.4772 }, weight: 0.8 },
+      
+      
+      { location: { lat: 18.5204, lng: 73.8567 }, weight: 0.7 },
+      { location: { lat: 18.5679, lng: 73.9143 }, weight: 0.7 },
+      
+      { location: { lat: 22.5726, lng: 88.3639 }, weight: 0.8 },
+      { location: { lat: 22.5448, lng: 88.3426 }, weight: 0.7 }
+    ];
+
+    function generateDynamicTrafficData() {
+      const currentTrafficIndex = parseFloat(document.getElementById('traffic-slider').value);
+      const dynamicData = [];
+      
+      trafficHotspots.forEach(hotspot => {
+        const variation = (Math.random() - 0.5) * 0.4;
+        const adjustedWeight = Math.max(0.1, Math.min(1.0, currentTrafficIndex + variation));
+        
+        dynamicData.push({
+          location: new google.maps.LatLng(hotspot.location.lat, hotspot.location.lng),
+          weight: adjustedWeight
+        });
+      });
+      
+      return dynamicData;
+    }
+
+    function toggleHeatmap() {
+      const toggleBtn = document.getElementById('toggle-heatmap');
+      const pointsDisplay = document.getElementById('heatmap-points');
+      
+      if (!isHeatmapVisible) {
+        heatmapData = generateDynamicTrafficData();
+        heatmap = new google.maps.visualization.HeatmapLayer({
+          data: heatmapData,
+          map: map,
+          radius: 50,
+          opacity: 0.8,
+          gradient: [
+            'rgba(0, 255, 0, 0)',
+            'rgba(0, 255, 0, 1)',
+            'rgba(255, 255, 0, 1)',
+            'rgba(255, 165, 0, 1)',
+            'rgba(255, 0, 0, 1)'
+          ]
+        });
+        
+        toggleBtn.textContent = 'Hide Heatmap';
+        toggleBtn.classList.add('active');
+        pointsDisplay.textContent = heatmapData.length;
+        isHeatmapVisible = true;
+        
+      } else {
+        if (heatmap) {
+          heatmap.setMap(null);
+        }
+        toggleBtn.textContent = 'Show Heatmap';
+        toggleBtn.classList.remove('active');
+        pointsDisplay.textContent = '0';
+        isHeatmapVisible = false;
+      }
+    }
+
+    function refreshTrafficData() {
+      if (isHeatmapVisible) {
+        heatmapData = generateDynamicTrafficData();
+        heatmap.setData(heatmapData);
+        document.getElementById('heatmap-points').textContent = heatmapData.length;
+        
+        const avgTraffic = heatmapData.reduce((sum, point) => sum + point.weight, 0) / heatmapData.length;
+        document.getElementById('avg-traffic').textContent = avgTraffic.toFixed(1);
+      }
+    }
+
+    function updateCurrentTrafficDisplay() {
+      const currentTraffic = document.getElementById('traffic-slider').value;
+      document.getElementById('current-traffic-index').textContent = currentTraffic;
+      
+      if (isHeatmapVisible) {
+        refreshTrafficData();
+      }
+    }
+
+    async function predictPrice() {
+      const fuelPrice = parseFloat(document.getElementById('fuel-slider').value);
+      const demandIndex = parseInt(document.getElementById('demand-slider').value);
+      const trafficIndex = parseFloat(document.getElementById('traffic-slider').value);
+      const distanceKm = parseFloat(document.getElementById('distance-slider').value);
+      const apiUrl = 'http://127.0.0.1:5000/predict';
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fuelPrice, demandIndex, trafficIndex, distanceKm })
+        });
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const result = await response.json();
+        const predictedPrice = result.predicted_price;
+        document.getElementById('predicted-price').textContent = `₹${predictedPrice.toFixed(2)}`;
+      } catch (error) {
+        console.error('Error calling API:', error);
+        document.getElementById('predicted-price').textContent = 'Error';
+      }
+    }
+
+    async function fetchFuelPrice() {
+      const url = 'https://daily-petrol-diesel-lpg-cng-fuel-prices-in-india.p.rapidapi.com/v1/fuel-prices/today/india/states';
+      const options = {
+        method: 'GET',
+        headers: {
+          'x-rapidapi-key': '97b4e7082fmsh16b7feaefd050c6p1aeff1jsneafa3ce7aa40',
+          'x-rapidapi-host': 'daily-petrol-diesel-lpg-cng-fuel-prices-in-india.p.rapidapi.com'
+        }
+      };
+      try {
+        const response = await fetch(url, options);
+        const result = await response.json();
+        const tamilNadu = result["statePrices"].find(s => s.stateName === "Tamil Nadu");
+        const fuelPrice = tamilNadu.fuel.petrol.retailPrice;
+        document.getElementById("fuel-slider").value = fuelPrice;
+        document.getElementById("fuel-value").textContent = fuelPrice;
+        predictPrice();
+      } catch (error) { 
+        console.error("Error fetching fuel price:", error); 
+      }
+    }
+
+    ['fuel', 'demand', 'traffic', 'distance'].forEach(name => {
+      const slider = document.getElementById(`${name}-slider`);
+      const valueSpan = document.getElementById(`${name}-value`);
+      slider.addEventListener('input', () => { 
+        valueSpan.textContent = slider.value; 
+        predictPrice();
+        
+        if (name === 'traffic') {
+          updateCurrentTrafficDisplay();
+        }
+      });
+    });
+
+    window.onload = () => { 
+      fetchFuelPrice(); 
+      predictPrice();
+      updateCurrentTrafficDisplay();
+    };
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 11.0168, lng: 76.9558 },
+        zoom: 6,
+        styles: [
+          { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+          { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+          { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+          {
+            featureType: "administrative.locality",
+            elementType: "labels.text.fill",
+            stylers: [{ color: "#d59563" }],
+          },
+          {
+            featureType: "poi",
+            elementType: "labels.text.fill",
+            stylers: [{ color: "#d59563" }],
+          },
+          {
+            featureType: "poi.park",
+            elementType: "geometry",
+            stylers: [{ color: "#263c3f" }],
+          },
+          {
+            featureType: "poi.park",
+            elementType: "labels.text.fill",
+            stylers: [{ color: "#6b9a76" }],
+          },
+          {
+            featureType: "road",
+            elementType: "geometry",
+            stylers: [{ color: "#38414e" }],
+          },
+          {
+            featureType: "road",
+            elementType: "geometry.stroke",
+            stylers: [{ color: "#212a37" }],
+          },
+          {
+            featureType: "road",
+            elementType: "labels.text.fill",
+            stylers: [{ color: "#9ca5b3" }],
+          },
+          {
+            featureType: "road.highway",
+            elementType: "geometry",
+            stylers: [{ color: "#ff0000" }],
+          },
+          {
+            featureType: "road.highway",
+            elementType: "geometry.stroke",
+            stylers: [{ color: "#1f2937" }],
+          },
+          {
+            featureType: "road.highway",
+            elementType: "labels.text.fill",
+            stylers: [{ color: "#f3d19c" }],
+          },
+          {
+            featureType: "transit",
+            elementType: "geometry",
+            stylers: [{ color: "#2f3948" }],
+          },
+          {
+            featureType: "transit.station",
+            elementType: "labels.text.fill",
+            stylers: [{ color: "#d59563" }],
+          },
+          {
+            featureType: "water",
+            elementType: "geometry",
+            stylers: [{ color: "#17263c" }],
+          },
+          {
+            featureType: "water",
+            elementType: "labels.text.fill",
+            stylers: [{ color: "#515c6d" }],
+          },
+          {
+            featureType: "water",
+            elementType: "labels.text.stroke",
+            stylers: [{ color: "#17263c" }],
+          },
+        ]
+      });
+      
+      const fromInput = document.getElementById("from-input");
+      const toInput = document.getElementById("to-input");
+      fromAutocomplete = new google.maps.places.Autocomplete(fromInput, { types: ['geocode'] });
+      toAutocomplete = new google.maps.places.Autocomplete(toInput, { types: ['geocode'] });
+      fromAutocomplete.addListener("place_changed", () => { fromPlace = fromAutocomplete.getPlace(); });
+      toAutocomplete.addListener("place_changed", () => { toPlace = toAutocomplete.getPlace(); });
+      directionsService = new google.maps.DirectionsService();
+      directionsRenderer = new google.maps.DirectionsRenderer({
+        polylineOptions: {
+          strokeColor: '#ff0000',
+          strokeWeight: 6,
+          strokeOpacity: 0.8
+        }
+      });
+      directionsRenderer.setMap(map);
+    }
+
+    function calculateAndDisplayRoute() {
+      document.getElementById('result').classList.add('hidden');
+      document.getElementById('summary-container').classList.add('hidden');
+      
+      if (!fromPlace || !toPlace || !fromPlace.geometry || !toPlace.geometry) { 
+        alert("Please select valid addresses."); 
+        return; 
+      }
+
+      directionsService.route(
+        { 
+          origin: { placeId: fromPlace.place_id }, 
+          destination: { placeId: toPlace.place_id }, 
+          travelMode: google.maps.TravelMode.DRIVING 
+        },
+        (response, status) => {
+          if (status === "OK") {
+            directionsRenderer.setDirections(response);
+            const service = new google.maps.DistanceMatrixService();
+            service.getDistanceMatrix(
+              { 
+                origins: [fromPlace.geometry.location], 
+                destinations: [toPlace.geometry.location], 
+                travelMode: google.maps.TravelMode.DRIVING 
+              },
+              (matrixResponse, matrixStatus) => {
+                if (matrixStatus === "OK") {
+                  const element = matrixResponse.rows[0].elements[0];
+                  if (element.status === "OK") {
+                    const distance = element.distance.text;
+                    const duration = element.duration.text;
+                    const numericDistance = parseFloat(distance.replace(/[^0-9.]/g, ""));
+                    
+                    document.getElementById('distance-slider').value = Math.min(20, numericDistance);
+                    document.getElementById('distance-value').textContent = Math.min(20, numericDistance);
+                    document.getElementById('distance-display').textContent = distance;
+                    document.getElementById('duration-display').textContent = duration;
+                    
+                    const trafficIndex = document.getElementById('traffic-slider').value;
+                    document.getElementById('traffic-display').textContent = trafficIndex;
+                    
+                    document.getElementById('result').classList.remove('hidden');
+                    predictPrice();
+                  } else { 
+                    alert("Distance calculation failed."); 
+                  }
+                } else { 
+                  alert("Distance Matrix request failed: " + matrixStatus); 
+                }
+              }
+            );
+          } else { 
+            alert("Directions request failed: " + status); 
+          }
+        }
+      );
+    }
+
+    async function generateRouteSummary() {
+      const geminiBtn = document.getElementById('gemini-btn');
+      const summaryContainer = document.getElementById('summary-container');
+      const summaryText = document.getElementById('summary-text');
+      
+      geminiBtn.disabled = true;
+      geminiBtn.textContent = 'Generating...';
+      summaryContainer.classList.add('hidden');
+
+      const { from, to } = { from: fromPlace.name, to: toPlace.name };
+      const distance = document.getElementById('distance-display').textContent;
+      const duration = document.getElementById('duration-display').textContent;
+      const fuelPrice = document.getElementById('fuel-slider').value;
+      const predictedPrice = document.getElementById('predicted-price').textContent;
+      const demandIndex = document.getElementById('demand-slider').value;
+      const trafficIndex = document.getElementById('traffic-slider').value;
+
+      const prompt = `Provide a concise, professional summary of the trip from ${from} to ${to}:
+      - Distance: ${distance}
+      - Duration: ${duration}
+      - Current Fuel Price: ₹${fuelPrice}
+      - Predicted Trip Fuel Cost: ${predictedPrice}
+      - Demand Index: ${demandIndex}
+      - Traffic Index: ${trafficIndex}`;
+      
+      const apiKey = "AIzaSyAKAb6IYL76krjunH3JCPBfj7NkyWPRszU";
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+
+      const payload = {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.7, maxOutputTokens: 256 },
+      };
+
+      try {
+        const response = await fetch(apiUrl, { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/json' }, 
+          body: JSON.stringify(payload) 
+        });
+        const result = await response.json();
+        const text = result?.candidates?.[0]?.content?.parts?.[0]?.text || "Failed to generate summary.";
+        summaryText.textContent = text;
+        summaryContainer.classList.remove('hidden');
+      } catch (error) {
+        console.error('Gemini API error:', error);
+        summaryText.textContent = "Error generating summary.";
+        summaryContainer.classList.remove('hidden');
+      } finally {
+        geminiBtn.disabled = false;
+        geminiBtn.textContent = 'Generate Summary';
+      }
+    }
+
+    document.getElementById('calculate-btn').addEventListener('click', calculateAndDisplayRoute);
+    document.getElementById('gemini-btn').addEventListener('click', generateRouteSummary);
+    document.getElementById('toggle-heatmap').addEventListener('click', toggleHeatmap);
+    document.getElementById('refresh-data').addEventListener('click', refreshTrafficData);
+  </script>
+
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDs0o-Ui37v3m3XITfqibIk7oYIFY2AlBk&libraries=places,visualization&callback=initMap" async defer></script>
+</body>
+</html>
